@@ -19,6 +19,12 @@ A distributed, multiplayer variation of the classic **Space Invaders** game, imp
   - [ZeroMQ](https://zeromq.org/) (`libzmq3-dev`)  
   - [NCurses](https://invisible-island.net/ncurses/) (`libncurses5-dev`)
   
+```bash
+dnf install zeromq-devel
+dnf install czmq-**devel**
+dnf install ncurses-devel
+```
+
 ## Project Files
 ```
 project
