@@ -16,6 +16,11 @@
 #define UPDATE      "Outer_space_update"
 #define ACK         "Message_received"
 
+//TODO In order to simplify the execution of the various applications the addresses (IP address
+//and port) of all the sockets in the project should be defined in a .h file 
+#define SERVER_ADDRESS "tcp://*:5555"
+#define CLIENT_ADDRESS "tcp://localhost:5555"
+
 typedef enum {A, B, C, D, E, F, G, H} player_id_t;
 typedef enum {UP, DOWN, LEFT, RIGHT} direction_t;
 

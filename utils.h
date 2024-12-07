@@ -14,5 +14,8 @@ static void update_score_board(WINDOW* score_board_win, Player* players,  int n_
 
 void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]);
 void init_score_board(Player* players, int n_players);
+// debug
+void init_debug_window();
+void update_debug_window(char* msg);
 
 #endif

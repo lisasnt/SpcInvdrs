@@ -21,23 +21,25 @@ int main () {
     void *responder = zmq_socket (context, ZMQ_REP);
     int rc = zmq_bind (responder, "tcp://*:5555");
     assert (rc == 0);
-
+    
     init_grid(grid, aliens);
     Player A = {'A', 1, 1, 0, 0, 0};
-    Player B = {'B', 1, 1, 11110, 0, 0};
+    Player B = {'B', 1, 2, 11110, 0, 0};
     players[0] = A;
     players[1] = B;
-    n_players = 2;
+    n_players = 8;
     init_score_board(players, n_players);
+    init_debug_window();
 
     while (1) {
-        /* //Socket
+        //Socket
         char buffer [10];
         zmq_recv (responder, buffer, 10, 0);
-        printf ("Received Hello\n");
+        update_debug_window("Received Hello\n");
         sleep (1);          //  Do some 'work'
-        zmq_send (responder, "World", 5, 0);*/
+        zmq_send (responder, "World", 5, 0);
     }
+    endwin();			/* End curses mode		  */
     return 0;
 }
 
@@ -54,7 +56,7 @@ the screen */
 // The aliens move randomly in outer space at a rate of one place per second
 // If an astronaut-client.c sends no message, it will not get updates on the other astronaut’s scores.
 // Students should decide what happens to a client that sends an Astronaut_connect message when 8 clients are already connected.
-// At the beginning of the game, 1/3 of the outer space should have aliens.
+// DONE At the beginning of the game, 1/3 of the outer space should have aliens.
 // Astronaut inserterd/removed from a list of astronauts
 // display ncurses field of game (with astronauts, aliens, and laser rays) and the scores of all the astronauts. (same as outer-space-display.c)
 // When an astronaut fires the laser, its ray should be drawn on the screen for 0.5 seconds. 

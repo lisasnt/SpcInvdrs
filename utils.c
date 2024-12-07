@@ -57,7 +57,7 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SI
 }
 
 void init_score_board(Player* players, int n_players) {
-    WINDOW* score_board_win = newwin(MAX_PLAYERS+4, GRID_SIZE, 1, GRID_SIZE+6);
+    WINDOW* score_board_win = newwin(MAX_PLAYERS+2, GRID_SIZE+2, 1, GRID_SIZE+6);
     box(score_board_win, 0 , 0);	
     mvwprintw(score_board_win, 0, 1, "Score Board");
     wrefresh(score_board_win);
@@ -71,7 +71,18 @@ void update_score_board(WINDOW* score_board_win, Player* players, int n_players)
     wrefresh(score_board_win);
 }
 
+void init_debug_window() {
+    WINDOW* debug_win = newwin(10, GRID_SIZE+2, MAX_PLAYERS+3, GRID_SIZE+6);
+    box(debug_win, 0 , 0);	
+    mvwprintw(debug_win, 0, 1, "Debug Window");
+    wrefresh(debug_win);
+}
 
+void update_debug_window(char* msg) {
+    WINDOW* debug_win = newwin(5, GRID_SIZE, MAX_PLAYERS+4, GRID_SIZE+7);
+    mvwprintw(debug_win, 1, 1, msg);
+    wrefresh(debug_win);
+}
 
 void new_position(int* x, int *y, direction_t direction){
     switch (direction)
