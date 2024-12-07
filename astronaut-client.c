@@ -1,3 +1,8 @@
+/*
+    Application that reads the keys pressed by the user,
+    corresponding to the movement of one astronaut, sends them to the server, and
+    receives the user score (how many aliens were zapped).
+*/
 #include <zmq.h>
 #include <string.h>
 #include <stdio.h>

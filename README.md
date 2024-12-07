@@ -21,7 +21,7 @@ A distributed, multiplayer variation of the classic **Space Invaders** game, imp
   
 ```bash
 dnf install zeromq-devel
-dnf install czmq-**devel**
+dnf install czmq-devel
 dnf install ncurses-devel
 ```
 
