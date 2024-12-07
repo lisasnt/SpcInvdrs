@@ -20,7 +20,9 @@ void init_aliens_array(char* aliens_array, int dim) {
     shuffle_array(aliens_array, dim);
 }
 
-// Initialize and draw the battle field with 1/3 of the outer space having aliens in random positions
+/*
+* Initialize and draw the battle field with 1/3 of the outer space having aliens in random positions
+*/
 void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]) {
     // Initialize the ncurses window
     initscr();		    	/* Start curses mode 		*/
@@ -53,6 +55,23 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SI
     wrefresh(outspc_win);
     //endwin();   /* End curses mode */  ->>>>>>>> si pianta ?  
 }
+
+void init_score_board(Player* players, int n_players) {
+    WINDOW* score_board_win = newwin(MAX_PLAYERS+4, GRID_SIZE, 1, GRID_SIZE+6);
+    box(score_board_win, 0 , 0);	
+    mvwprintw(score_board_win, 0, 1, "Score Board");
+    wrefresh(score_board_win);
+    update_score_board(score_board_win, players, n_players);
+}
+
+void update_score_board(WINDOW* score_board_win, Player* players, int n_players) {
+    for (int i = 0; i < n_players; i++) {
+        mvwprintw(score_board_win, i+1, 1, "Player %c: %d", players[i].id, players[i].score);
+    }
+    wrefresh(score_board_win);
+}
+
+
 
 void new_position(int* x, int *y, direction_t direction){
     switch (direction)

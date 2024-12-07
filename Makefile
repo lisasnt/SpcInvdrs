@@ -1,6 +1,6 @@
 all: game-server astronaut-client outer-space-display
 
-game-server: game-server.c
+game-server: utils.c game-server.c
 	gcc -lncurses -lczmq -lzmq utils.c game-server.c -o $@
 
 astronaut-client: astronaut-client.c

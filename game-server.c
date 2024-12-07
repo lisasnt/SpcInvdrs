@@ -12,6 +12,8 @@
 
 char grid[GRID_SIZE][GRID_SIZE];
 char aliens[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]; // TODO: or is it better int aliens[] with 1 and 0 ?????
+Player players[MAX_PLAYERS];
+int n_players = 0;
 
 int main () {
     //  Socket to talk to clients
@@ -21,6 +23,12 @@ int main () {
     assert (rc == 0);
 
     init_grid(grid, aliens);
+    Player A = {'A', 1, 1, 0, 0, 0};
+    Player B = {'B', 1, 1, 11110, 0, 0};
+    players[0] = A;
+    players[1] = B;
+    n_players = 2;
+    init_score_board(players, n_players);
 
     while (1) {
         /* //Socket
