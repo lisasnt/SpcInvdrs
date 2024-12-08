@@ -15,20 +15,23 @@ void shuffle_array(char* array, size_t n) {
 
 void init_aliens_array(char* aliens_array, int dim) {    
     for (int i = 0; i < dim; i++) {
-        aliens_array[i] = (i < (dim)/3) ? ALIEN : ' ';
+        aliens_array[i] = (i < (dim)/3) ? ALIEN_SYMBOL : ' ';
     }
     shuffle_array(aliens_array, dim);
+}
+
+void init_ncurses() {
+    initscr();		    	/* Start curses mode 		*/
+    cbreak();				/* Line buffering disabled	*/
+    keypad(stdscr, TRUE);   /* We get F1, F2 etc..		*/
+    noecho();			    /* Don't echo() while we do getch */
 }
 
 /*
 * Initialize and draw the battle field with 1/3 of the outer space having aliens in random positions
 */
 void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]) {
-    // Initialize the ncurses window
-    initscr();		    	/* Start curses mode 		*/
-	cbreak();				/* Line buffering disabled	*/
-    keypad(stdscr, TRUE);   /* We get F1, F2 etc..		*/
-	noecho();			    /* Don't echo() while we do getch */
+    init_ncurses();
 
     WINDOW* my_win = newwin(GRID_SIZE+3, GRID_SIZE+3, 0, 0);
     for (int i = 1; i < GRID_SIZE+1; i++) {
@@ -56,15 +59,10 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SI
     //endwin();   /* End curses mode */  ->>>>>>>> si pianta ?  
 }
 
-void init_score_board(Player* players, int n_players) {
+void get_score_board(Player* players, int n_players) {
     WINDOW* score_board_win = newwin(MAX_PLAYERS+2, GRID_SIZE+2, 1, GRID_SIZE+6);
     box(score_board_win, 0 , 0);	
     mvwprintw(score_board_win, 0, 1, "Score Board");
-    wrefresh(score_board_win);
-    update_score_board(score_board_win, players, n_players);
-}
-
-void update_score_board(WINDOW* score_board_win, Player* players, int n_players) {
     for (int i = 0; i < n_players; i++) {
         mvwprintw(score_board_win, i+1, 1, "Player %c: %d", players[i].id, players[i].score);
     }
@@ -82,6 +80,15 @@ void update_debug_window(char* msg) {
     WINDOW* debug_win = newwin(5, GRID_SIZE, MAX_PLAYERS+4, GRID_SIZE+7);
     mvwprintw(debug_win, 1, 1, msg);
     wrefresh(debug_win);
+}
+
+/*
+* Initialize the player controller: keyboard input and print its own score
+*/
+void init_player_controller() {
+    init_ncurses();
+
+    mvprintw(0,0,"Score: %d", 0);
 }
 
 void new_position(int* x, int *y, direction_t direction){

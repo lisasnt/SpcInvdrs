@@ -4,10 +4,6 @@
     implements the game rules, and sends updates to the outer-space-display.c. 
     This application also shows the outer space.
 */
-#include <zmq.h>
-#include <assert.h>
-#include <unistd.h>
-
 #include "utils.h"
 
 char grid[GRID_SIZE][GRID_SIZE];
@@ -15,31 +11,51 @@ char aliens[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]; // TODO: or is it better int ali
 Player players[MAX_PLAYERS];
 int n_players = 0;
 
+const char player_id_chars[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+
 int main () {
     //  Socket to talk to clients
     void *context = zmq_ctx_new ();
     void *responder = zmq_socket (context, ZMQ_REP);
-    int rc = zmq_bind (responder, "tcp://*:5555");
+    int rc = zmq_bind (responder, SERVER_ADDRESS);
     assert (rc == 0);
     
     init_grid(grid, aliens);
-    Player A = {'A', 1, 1, 0, 0, 0};
-    Player B = {'B', 1, 2, 11110, 0, 0};
-    players[0] = A;
-    players[1] = B;
-    n_players = 8;
-    init_score_board(players, n_players);
+    get_score_board(players, n_players);
     init_debug_window();
 
     while (1) {
         //Socket
-        char buffer [10];
-        zmq_recv (responder, buffer, 10, 0);
-        update_debug_window("Received Hello\n");
+        char buffer[MSG_SIZE];
+        strcpy(buffer, s_recv(responder));
+        if (strcmp(buffer, CONNECT) == 0) {
+            if (n_players < MAX_PLAYERS) {
+                update_debug_window("Received Astronaut_connect\n");
+                Player new_player = {player_id_chars[n_players], 1, 1, 0, 0, 0};
+                players[n_players++] = new_player;
+                get_score_board(players, n_players);
+                s_send(responder, &new_player.id);
+            } else {
+                update_debug_window("Received Astronaut_connect: SERVER IS FULL!\n");
+                sleep(1);
+                s_send(responder, "SERVER IS FULL!");
+            }
+        } else if (strcmp(buffer, MOVE) == 0) {
+            update_debug_window("Received Astronaut_movement\n");
+            //TODO
+        } else if (strcmp(buffer, ZAP) == 0) {
+            update_debug_window("Received Astronaut_zap\n");
+            //TODO
+        } else if (strcmp(buffer, DISCONNECT) == 0) {
+            update_debug_window("Received Astronaut_disconnect\n");
+            //TODO
+        } else {
+            update_debug_window("Received unknown message\n");
+        }
         sleep (1);          //  Do some 'work'
         zmq_send (responder, "World", 5, 0);
     }
-    endwin();			/* End curses mode		  */
+    endwin();   /* End curses mode */
     return 0;
 }
 
@@ -60,9 +76,17 @@ the screen */
 // Astronaut inserterd/removed from a list of astronauts
 // display ncurses field of game (with astronauts, aliens, and laser rays) and the scores of all the astronauts. (same as outer-space-display.c)
 // When an astronaut fires the laser, its ray should be drawn on the screen for 0.5 seconds. 
+// When astronaut sends a command he must receive back its own score.
 // Error treatment / Cheating prevention
 // Zapping -> Aliens are destroyed, and a point is added to the astronaut.
 //         -> Other astronauts are stunned and become unmovable for 10 seconds.
 //         -> Astronauts can only fire the laser at a rate of one fire every 3 seconds.
+// asser results of zmq functions:
+                                    /*void *context = zmq_ctx_new ();
+                                    assert (rc != NULL);
+                                    void *responder = zmq_socket (context, ZMQ_REP);
+                                    assert (responder != NULL);
+                                    int rc = zmq_bind (responder, "tcp://*:5555");
+                                    assert (rc == 0); */
 
 // DONOT USE threds, select, non-blocking communication, active wait, signals
