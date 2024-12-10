@@ -31,10 +31,14 @@ int main () {
         if (strcmp(buffer, CONNECT) == 0) {
             if (n_players < MAX_PLAYERS) {
                 update_debug_window("Received Astronaut_connect\n");
-                Player new_player = {player_id_chars[n_players], 1, 1, 0, 0, 0};
+                Player new_player = {   player_id_chars[n_players], 
+                                        0,  
+                                        0, 
+                                        0, 0, 0};
                 players[n_players++] = new_player;
                 get_score_board(players, n_players);
                 s_send(responder, &new_player.id);
+                add_new_ply_to_grid(grid, &new_player);  
             } else {
                 update_debug_window("Received Astronaut_connect: SERVER IS FULL!\n");
                 sleep(1);
@@ -42,18 +46,28 @@ int main () {
             }
         } else if (strcmp(buffer, MOVE) == 0) {
             update_debug_window("Received Astronaut_movement\n");
-            //TODO
+            strcpy(buffer, s_recv(responder));  // receives the direction of the movement
+            memset(buffer, 0, sizeof(buffer));
+            strcpy(buffer, s_recv(responder)); // receives the astronaut id
+            int tmp_id = get_id(buffer, player_id_chars);
+            move_player(grid, &players[tmp_id], (action_t)buffer);
+            get_score_board(players, n_players);
+            sprintf(buffer, "%d", players[tmp_id].score);
+            s_send(responder, buffer);
         } else if (strcmp(buffer, ZAP) == 0) {
             update_debug_window("Received Astronaut_zap\n");
             //TODO
         } else if (strcmp(buffer, DISCONNECT) == 0) {
             update_debug_window("Received Astronaut_disconnect\n");
-            //TODO
+            strcpy(buffer, s_recv(responder)); // receives the astronaut id
+            int tmp_id = get_id(buffer, player_id_chars);
+            remove_player_from_grid(grid, &players[tmp_id]);
+            n_players--; // next will override the last disconnected player
+            get_score_board(players, n_players);
         } else {
             update_debug_window("Received unknown message\n");
         }
-        sleep (1);          //  Do some 'work'
-        zmq_send (responder, "World", 5, 0);
+        sleep (1); 
     }
     endwin();   /* End curses mode */
     return 0;

@@ -29,9 +29,11 @@ int main (void) {
         endwin(); 
         return 0;
     }
-    mvprintw(0, 0, "Received ID: %s", buffer);
+    mvprintw(0, 0, "Your ID: %c", buffer[0]);
+    mvprintw(1, 0, "Press Arrows to MOVE in your direction, Space to ZAP, q-Q to quit");
+    mvprintw(4, 0, "Your score: %d", 0);
+    refresh();
     player.id = buffer[0];
-    sleep(1);
 
     /* loop that:
         - reads a key press;
@@ -39,12 +41,13 @@ int main (void) {
         - receives a reply with the astronaut score;
     */
     Remote_cmd_t command;
-    int key = -1;
-    while (key == -1) {
-        key = getch();
-    }
-    while (key != 'q' && key != 'Q') {
-        char message[MSG_SIZE];
+    command.msg_type = "Not valid";
+    command.action = -1;
+    int key = -1; 
+    while (strcmp(command.msg_type, DISCONNECT) != 0) {
+        while (key == -1) {
+            key = getch();
+        }
         switch (key) {
             case KEY_LEFT:
                 command.msg_type = MOVE;
@@ -66,57 +69,43 @@ int main (void) {
                 command.msg_type = ZAP;
                 command.action = LASER;
                 break;
+            case 'q':
+            case 'Q':
+                command.msg_type = DISCONNECT;
+                command.action = -1;
+                break;
             default:
+                command.msg_type = "Not valid";
+                mvprintw(2, 0, "Not valid, try again");
+                refresh(); 
+                command.action = -1;
                 break;
         }
-        s_sendmore(requester, command.msg_type);
-        s_send(requester, command.action);
-        char buffer[MSG_SIZE];
-        strcpy(buffer, s_recv(requester));
-        mvprintw(1, 0, "Received response: %s", buffer); 
-        refresh(); 
-        sleep(1);
+        key = -1;
+        if (command.action != -1) {
+            sprintf(buffer, "%s", command.msg_type); // sends the message type MOVE or ZAP
+            refresh();
+            if (strcmp(buffer, MOVE) == 0) {
+                sprintf(buffer, "%d", command.action);
+                s_send(requester, buffer);  // sends the direction of the movement
+            }
+            memset(buffer, 0, MSG_SIZE);
+            sprintf(buffer, "%s", player.id); 
+            s_send(requester, buffer);          // sends the astronaut id
+            memset(buffer, 0, MSG_SIZE);
+            strcpy(buffer, s_recv(requester));  // receives the astronaut score
+            mvprintw(4, 0, "Your score: %s", buffer);
+            sleep(1);
+        }
     }
-    
-
-    zmq_close (requester);
-    zmq_ctx_destroy (context); 
 
     // Disconnect from the server (message Astronaut_disconnect)
-    //TODO If the user presses the q or Q keys, the client should terminate and send an Astronaut_disconnect message to the server.
-
-    /*
-    int n = 0;
-    int key;
-
-    do
-    {
-    	key = getch();		
-        n++;
-        switch (key)
-        {
-        case KEY_LEFT:
-            mvprintw(0,0,"%d Left arrow is pressed", n);
-            break;
-        case KEY_RIGHT:
-            mvprintw(0,0,"%d Right arrow is pressed", n);
-            break;
-        case KEY_DOWN:
-            mvprintw(0,0,"%d Down arrow is pressed", n);
-            break;
-        case KEY_UP:
-            mvprintw(0,0,"%d Up arrow is pressed", n);
-            break;
-
-        default:
-        mvprintw(0,0,"%d: %c key was pressed", n, key);
-            break;
-        }
-    	refresh(); 
-    }while(key != 27);
-    */
-    
+    s_send(requester, DISCONNECT);
+    mvprintw(4, 0, "You decide to disconnected :(");
+    refresh();
+    sleep(1);
+    zmq_close (requester);
+    zmq_ctx_destroy (context); 
   	endwin();   /* End curses mode */
-
     return 0;
 }

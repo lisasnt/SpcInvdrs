@@ -42,7 +42,7 @@ typedef struct {
 } Alien;
 
 typedef struct {
-    int msg_type;
-    //char ch;
+    char* msg_type;     // MOVE, ZAP or DISCONNECT
+    //int key;
     action_t action;
 } Remote_cmd_t;

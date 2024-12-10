@@ -30,7 +30,7 @@ void init_ncurses() {
 /*
 * Initialize and draw the battle field with 1/3 of the outer space having aliens in random positions
 */
-void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]) {
+void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array) {
     init_ncurses();
 
     WINDOW* my_win = newwin(GRID_SIZE+3, GRID_SIZE+3, 0, 0);
@@ -56,7 +56,24 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char aliens_array[OUTER_SPACE_SI
         }
     }
     wrefresh(outspc_win);
-    //endwin();   /* End curses mode */  ->>>>>>>> si pianta ?  
+
+    // save aliens positions in the grid
+    for (int i = 0; i < OUTER_SPACE_SIZE; i++) {
+        for (int j = 0; j < OUTER_SPACE_SIZE; j++) {
+            grid[i+OFFSET][j+OFFSET] = aliens_array[j*OUTER_SPACE_SIZE+i];
+        }
+    }
+}
+
+void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]) {
+    WINDOW* game_border_win = newwin(GRID_SIZE+2, GRID_SIZE+2, 1, 1);
+    box(game_border_win, 0 , 0);
+    for (int i = 0; i < GRID_SIZE; i++) {
+        for (int j = 0; j < GRID_SIZE; j++) {
+            mvwprintw(game_border_win, i+1, j+1, "%c", grid[j][i]);
+        }
+    }	
+    wrefresh(game_border_win);
 }
 
 void get_score_board(Player* players, int n_players) {
@@ -91,30 +108,88 @@ void init_player_controller() {
     mvprintw(0,0,"Score: %d", 0);
 }
 
-void new_position(int* x, int *y, direction_t direction){
+/*
+*   Add a new player to the grid
+*/
+void add_new_ply_to_grid(char grid[GRID_SIZE][GRID_SIZE], Player* new_player) {
+    char id = new_player->id;
+    // TODO randomize the position inside each area
+    switch (id)
+    {
+        case 'A':
+            new_player->x = 3; //in the visual grid it is (3,1) but in the grid[][] is [2][0] because refresh_grid() offset x,y by 1 (in 0 there is the border line)
+            new_player->y = 1;
+            break;
+        case 'B':
+            new_player->x = 2;
+            new_player->y = 1;
+            break;
+        case 'C':
+            new_player->x = 18;
+            new_player->y = 4;
+            break;
+        case 'D':
+            new_player->x = 19;
+            new_player->y = 5;
+            break;
+        case 'E':
+            new_player->x = 16;
+            new_player->y = 18;
+            break;
+        case 'F':
+            new_player->x = 17;
+            new_player->y = 19;
+            break;
+        case 'G':
+            new_player->x = 0;
+            new_player->y = 2;
+            break;
+        case 'H':
+            new_player->x = 1;
+            new_player->y = 3;
+            break;
+        default:
+            break;
+    }
+    grid[(new_player->x)-1][(new_player->y)-1] = id;
+    refresh_grid(grid);
+}
+
+void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direction){
     switch (direction)
     {
-    case UP:
-        (*x) --;
-        if(*x ==0)
-            *x = 2;
-        break;
-    case DOWN:
-        (*x) ++;
-        if(*x ==GRID_SIZE-1)
-            *x = GRID_SIZE-3;
-        break;
     case LEFT:
-        (*y) --;
-        if(*y ==0)
-            *y = 2;
+        (player->x) --;
+        if (player->x == 2)
+            player->x = GRID_SIZE-OFFSET;
         break;
     case RIGHT:
-        (*y) ++;
-        if(*y ==GRID_SIZE-1)
-            *y = GRID_SIZE-3;
+        (player->x) ++;
+        if(player->x == GRID_SIZE-OFFSET-1)
+            player->x = 3;
+        break;
+    case UP:
+        (player->y) --;
+        if(player->y == 2)
+            player->y =  GRID_SIZE-OFFSET;
+        break;
+    case DOWN:
+        (player->y) ++;
+        if(player->y == GRID_SIZE-OFFSET-1)
+            player->y = 3;
         break;
     default:
         break;
     }
+    grid[(player->x)-1][(player->y)-1] = player->id;
+    refresh_grid(grid);
+}
+
+int get_id(char* buffer, const char* player_id_chars) {
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (player_id_chars[i] == buffer[0]) {
+            return i;
+        }
+    }
+    return -1;
 }
