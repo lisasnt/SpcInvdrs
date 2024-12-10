@@ -9,6 +9,7 @@
 #define MAX_PLAYERS 8
 #define ALIEN_SYMBOL '*'
 #define LASER_SYMBOL '-'
+#define LASER_SYMBOL_VERTICAL '|'
 #define MSG_SIZE 256
 
 // Define message types

@@ -26,7 +26,7 @@
 #   include <windows.h>
 #endif
 
-//  Version checking, and patch up missing constants to match 2.1
+//  Version checking, and patch up missing constants to match 2.1 
 #if ZMQ_VERSION_MAJOR == 2
 #   error "Please upgrade to ZeroMQ/3.2 for these examples"
 #endif

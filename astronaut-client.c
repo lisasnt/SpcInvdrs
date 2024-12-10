@@ -122,6 +122,6 @@ int main (void) {
 }
 
 // TODO disconnect the player also when the window is closed Ctrl+C
-// TODO add a timeout for the server response
+// TODO add a timeout for the server response 
 // and also for all the other actions
 

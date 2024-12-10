@@ -23,6 +23,7 @@ void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]);
 void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direction);
 int get_id(char* buffer, const char* player_id_chars);
 void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player);
+void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int n_players);
 
 // debug
 void init_debug_window();

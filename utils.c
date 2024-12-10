@@ -225,7 +225,80 @@ void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player) {
     refresh_grid(grid);
 }
 
-void check_astronauts_area(char grid[GRID_SIZE][GRID_SIZE], Player* player) {
+/*
+    Draw the - line on the screen for 0.5 seconds,
+    and after delete aliens in line of sight
+    flag the other astronauts as stunned in the same line of sight
+*/
+void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int n_players) {
     int id = player->id;
+    int x = player->x;
+    int y = player->y;  
 
+    switch (id) {
+        case 'A':
+        case 'H':
+        case 'F':
+        case 'D':
+            for(int i = 1; i <= GRID_SIZE; i++) {
+                if (grid[i-1][y-1] != id) {
+                    if (grid[i-1][y-1] == ALIEN_SYMBOL) {
+                        player->score ++;
+                        grid[i-1][y-1] = LASER_SYMBOL;
+                    }
+                    if (grid[i-1][y-1] == ' ') {
+                        grid[i-1][y-1] = LASER_SYMBOL;
+                    }
+                    for (int j = 0; j < n_players; j++) {
+                        if (grid[i-1][y-1] == players[j].id) {
+                            players[j].stunned = 1; //TODO: set the stunned time 10s
+                        }
+                    }
+                }
+            }
+            player->cooldown = 1; //TODO: set the cooldown time 3s
+            refresh_grid(grid);
+            sleep(1); // TODO remove when implement the 0.5s
+            for(int i = 1; i <= GRID_SIZE; i++) {
+                if (grid[i-1][y-1] == LASER_SYMBOL) {
+                    grid[i-1][y-1] = ' ';
+                }
+            }
+            refresh_grid(grid);
+            break;
+        case 'B':
+        case 'C':   
+        case 'E':
+        case 'G':
+            for(int i = 1; i <= GRID_SIZE; i++) {
+                if (grid[x-1][i-1] != id) {
+                    if (grid[x-1][i-1] == ALIEN_SYMBOL) {
+                        player->score ++;
+                        grid[x-1][i-1] = LASER_SYMBOL_VERTICAL;
+                    } 
+                    if (grid[x-1][i-1] == ' ') {
+                        grid[x-1][i-1] = LASER_SYMBOL_VERTICAL;
+                    }
+                    for (int j = 0; j < n_players; j++) {
+                        if (grid[x-1][i-1] == players[j].id) {
+                            players[j].stunned = 1; //TODO: set the stunned time 10s
+                        }
+                    }
+                }
+            }
+            player->cooldown = 1; //TODO: set the cooldown time 3s
+            refresh_grid(grid);
+            sleep(1); // TODO remove when implement the 0.5s
+            for(int i = 1; i <= GRID_SIZE; i++) {
+                if (grid[x-1][i-1] == LASER_SYMBOL_VERTICAL) {
+                    grid[x-1][i-1] = ' ';
+                }
+            }
+            refresh_grid(grid);
+            break;
+        default:
+            break;
+        
+    }
+    
 }

@@ -61,9 +61,10 @@ int main () {
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);
             //TODO destroy aliens, freeze other astronauts, cooldown, update score
+            laser_opponents(grid, &players[tmp_id], players, n_players);
             sprintf(buffer, "%d", players[tmp_id].score);
             s_send(responder, buffer); // sends the astronaut score
-
+            get_score_board(players, n_players);
         } else if (strcmp(buffer, DISCONNECT) == 0) {
             update_debug_window("Received Astronaut_disconnect\n");
             //s_send(responder, ACK);
@@ -72,6 +73,7 @@ int main () {
             s_send(responder, ACK);
             remove_player(grid, &players[tmp_id]);
             n_players--; // next will override the last disconnected player
+            // TODO fix, if one in the middle disocnneted, the last one will be overriden -> use a list!!!
             get_score_board(players, n_players);
             
         } else {
