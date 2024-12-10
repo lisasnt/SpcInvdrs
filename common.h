@@ -9,7 +9,7 @@
 #define MAX_PLAYERS 8
 #define ALIEN_SYMBOL '*'
 #define LASER_SYMBOL '-'
-#define MSG_SIZE 32
+#define MSG_SIZE 256
 
 // Define message types
 #define CONNECT     "Astronaut_connect"
@@ -17,7 +17,7 @@
 #define ZAP         "Astronaut_zap"
 #define DISCONNECT  "Astronaut_disconnect"
 #define UPDATE      "Outer_space_update"
-//#define ACK         "Message_received"
+#define ACK         "Message_received"
 
 //TODO In order to simplify the execution of the various applications the addresses (IP address
 //and port) of all the sockets in the project should be defined in a .h file 

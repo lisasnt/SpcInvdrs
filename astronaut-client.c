@@ -83,14 +83,17 @@ int main (void) {
         }
         key = -1;
         if (command.action != -1) {
-            sprintf(buffer, "%s", command.msg_type); // sends the message type MOVE or ZAP
-            refresh();
+            sprintf(buffer, "%s", command.msg_type); // message type: MOVE or ZAP
             if (strcmp(buffer, MOVE) == 0) {
+                s_sendmore(requester, buffer);  // sends the message MOVE
+                memset(buffer, 0, MSG_SIZE);
                 sprintf(buffer, "%d", command.action);
-                s_send(requester, buffer);  // sends the direction of the movement
+                s_sendmore(requester, buffer);  // sends the direction of the movement
+            } else {
+                s_sendmore(requester, buffer);      // sends the message ZAP
             }
             memset(buffer, 0, MSG_SIZE);
-            sprintf(buffer, "%s", player.id); 
+            sprintf(buffer, "%c", player.id); 
             s_send(requester, buffer);          // sends the astronaut id
             memset(buffer, 0, MSG_SIZE);
             strcpy(buffer, s_recv(requester));  // receives the astronaut score
@@ -100,12 +103,25 @@ int main (void) {
     }
 
     // Disconnect from the server (message Astronaut_disconnect)
-    s_send(requester, DISCONNECT);
+    s_sendmore(requester, DISCONNECT);
+    // while(strcmp(buffer, ACK) != 0) {
+    //     strcpy(buffer, s_recv(requester));
+    // }
     mvprintw(4, 0, "You decide to disconnected :(");
     refresh();
-    sleep(1);
+    memset(buffer, 0, MSG_SIZE);
+    sprintf(buffer, "%c", player.id);
+    s_send(requester, &player.id);
+    // while(strcmp(buffer, ACK) != 0) {
+    //     strcpy(buffer, s_recv(requester));
+    // }
     zmq_close (requester);
     zmq_ctx_destroy (context); 
   	endwin();   /* End curses mode */
     return 0;
 }
+
+// TODO disconnect the player also when the window is closed Ctrl+C
+// TODO add a timeout for the server response
+// and also for all the other actions
+

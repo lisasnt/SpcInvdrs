@@ -111,42 +111,54 @@ void init_player_controller() {
 /*
 *   Add a new player to the grid
 */
-void add_new_ply_to_grid(char grid[GRID_SIZE][GRID_SIZE], Player* new_player) {
+void add_player(char grid[GRID_SIZE][GRID_SIZE], Player* new_player) {
     char id = new_player->id;
-    // TODO randomize the position inside each area
+    /*
+       Boundaries check for every player area
+        from (x, y) to (x, y)
+        E   (3,1) to (18,1)
+        G   (3,2) to (18,2)
+        A   (1,3) to (1,18)
+        H   (2,3) to (2,18)
+        B   (3,19) to (18,19)
+        C   (3,20) to (18,20)
+        F   (20, 3) to (20, 18)
+        D   (19, 3) to (19, 18)
+    */
+   srand(time(NULL));
     switch (id)
     {
         case 'A':
-            new_player->x = 3; //in the visual grid it is (3,1) but in the grid[][] is [2][0] because refresh_grid() offset x,y by 1 (in 0 there is the border line)
-            new_player->y = 1;
+            new_player->x = 1; 
+            new_player->y = random_from_i_to_n(3,18);
             break;
         case 'B':
-            new_player->x = 2;
-            new_player->y = 1;
+            new_player->x = random_from_i_to_n(3,18);
+            new_player->y = 19;
             break;
         case 'C':
-            new_player->x = 18;
-            new_player->y = 4;
+            new_player->x = random_from_i_to_n(3,18);
+            new_player->y = 20;
             break;
         case 'D':
             new_player->x = 19;
-            new_player->y = 5;
+            new_player->y = random_from_i_to_n(3,18);
             break;
         case 'E':
-            new_player->x = 16;
-            new_player->y = 18;
+            new_player->x = random_from_i_to_n(3,18);
+            new_player->y = 1;
             break;
         case 'F':
-            new_player->x = 17;
-            new_player->y = 19;
+            new_player->x = 20;
+            new_player->y = random_from_i_to_n(3,18);
             break;
         case 'G':
-            new_player->x = 0;
+            new_player->x = random_from_i_to_n(3,18);
             new_player->y = 2;
             break;
         case 'H':
-            new_player->x = 1;
-            new_player->y = 3;
+            new_player->x = 2;
+            new_player->y = random_from_i_to_n(3,18);
             break;
         default:
             break;
@@ -156,30 +168,44 @@ void add_new_ply_to_grid(char grid[GRID_SIZE][GRID_SIZE], Player* new_player) {
 }
 
 void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direction){
-    switch (direction)
-    {
-    case LEFT:
-        (player->x) --;
-        if (player->x == 2)
-            player->x = GRID_SIZE-OFFSET;
-        break;
-    case RIGHT:
-        (player->x) ++;
-        if(player->x == GRID_SIZE-OFFSET-1)
-            player->x = 3;
-        break;
-    case UP:
-        (player->y) --;
-        if(player->y == 2)
-            player->y =  GRID_SIZE-OFFSET;
-        break;
-    case DOWN:
-        (player->y) ++;
-        if(player->y == GRID_SIZE-OFFSET-1)
-            player->y = 3;
-        break;
-    default:
-        break;
+    //TODO discirminate the commands for the different players
+    char id = player->id;
+    int old_x = player->x;
+    int old_y = player->y;
+    grid[old_x-1][old_y-1] = ' ';
+    switch (id) {
+        case 'A':
+        case 'H':
+        case 'F':
+        case 'D':
+            if (direction == UP) {
+                (player->y) --;
+                if(player->y == 2)
+                player->y =  GRID_SIZE-OFFSET;
+            } else if (direction == DOWN) {
+                (player->y) ++;
+                if(player->y == GRID_SIZE-1)
+                player->y = 3;
+            }
+            break;
+        case 'B':
+        case 'C':   
+        case 'E':
+        case 'G':
+            if (direction == RIGHT) {
+                (player->x) ++;
+                if(player->x == GRID_SIZE-1)
+                player->x = 3;
+            } else if (direction == LEFT) {
+                (player->x) --;
+                if (player->x == 2)
+                player->x = GRID_SIZE-OFFSET;
+            }
+            break;
+        default:
+            player->x = old_x;
+            player->y = old_y;
+            break;
     }
     grid[(player->x)-1][(player->y)-1] = player->id;
     refresh_grid(grid);
@@ -192,4 +218,14 @@ int get_id(char* buffer, const char* player_id_chars) {
         }
     }
     return -1;
+}
+
+void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player) {
+    grid[(player->x)-1][(player->y)-1] = ' ';
+    refresh_grid(grid);
+}
+
+void check_astronauts_area(char grid[GRID_SIZE][GRID_SIZE], Player* player) {
+    int id = player->id;
+
 }

@@ -35,10 +35,10 @@ int main () {
                                         0,  
                                         0, 
                                         0, 0, 0};
+                add_player(grid, &new_player);  
                 players[n_players++] = new_player;
                 get_score_board(players, n_players);
                 s_send(responder, &new_player.id);
-                add_new_ply_to_grid(grid, &new_player);  
             } else {
                 update_debug_window("Received Astronaut_connect: SERVER IS FULL!\n");
                 sleep(1);
@@ -47,23 +47,33 @@ int main () {
         } else if (strcmp(buffer, MOVE) == 0) {
             update_debug_window("Received Astronaut_movement\n");
             strcpy(buffer, s_recv(responder));  // receives the direction of the movement
+            action_t tmp_direction = (int)(buffer[0]-'0');
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);
-            move_player(grid, &players[tmp_id], (action_t)buffer);
+            move_player(grid, &players[tmp_id], tmp_direction);
             get_score_board(players, n_players);
             sprintf(buffer, "%d", players[tmp_id].score);
-            s_send(responder, buffer);
+            s_send(responder, buffer); // sends the astronaut score
         } else if (strcmp(buffer, ZAP) == 0) {
             update_debug_window("Received Astronaut_zap\n");
-            //TODO
-        } else if (strcmp(buffer, DISCONNECT) == 0) {
-            update_debug_window("Received Astronaut_disconnect\n");
+            memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);
-            remove_player_from_grid(grid, &players[tmp_id]);
+            //TODO destroy aliens, freeze other astronauts, cooldown, update score
+            sprintf(buffer, "%d", players[tmp_id].score);
+            s_send(responder, buffer); // sends the astronaut score
+
+        } else if (strcmp(buffer, DISCONNECT) == 0) {
+            update_debug_window("Received Astronaut_disconnect\n");
+            //s_send(responder, ACK);
+            strcpy(buffer, s_recv(responder)); // receives the astronaut id
+            int tmp_id = get_id(buffer, player_id_chars);
+            s_send(responder, ACK);
+            remove_player(grid, &players[tmp_id]);
             n_players--; // next will override the last disconnected player
             get_score_board(players, n_players);
+            
         } else {
             update_debug_window("Received unknown message\n");
         }
