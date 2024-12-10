@@ -220,9 +220,23 @@ int get_id(char* buffer, const char* player_id_chars) {
     return -1;
 }
 
-void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player) {
+/*
+   Remove a player from the grid and the list of players, decreasing the total number of players
+*/
+void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int* n_players) {
+    // remove player from the grid
     grid[(player->x)-1][(player->y)-1] = ' ';
     refresh_grid(grid);
+    // remove player from the list
+    for (int i = 0; i < n_players; i++) {
+        if (players[i].id == player->id) {
+            for (int j = i; j < n_players-1; j++) {
+                players[j] = players[j+1];
+            }
+            n_players --;
+            break;
+        }
+    }
 }
 
 /*

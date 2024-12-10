@@ -8,7 +8,7 @@
 
 char grid[GRID_SIZE][GRID_SIZE];
 char aliens[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE]; // TODO: or is it better int aliens[] with 1 and 0 ?????
-Player players[MAX_PLAYERS];
+Player players[MAX_PLAYERS]; // must be handled as a list
 int n_players = 0;
 
 const char player_id_chars[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
@@ -71,9 +71,7 @@ int main () {
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);
             s_send(responder, ACK);
-            remove_player(grid, &players[tmp_id]);
-            n_players--; // next will override the last disconnected player
-            // TODO fix, if one in the middle disocnneted, the last one will be overriden -> use a list!!!
+            remove_player(grid, &players[tmp_id], players, &n_players); 
             get_score_board(players, n_players);
             
         } else {
