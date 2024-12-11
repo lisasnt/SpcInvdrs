@@ -1,1 +1,4 @@
 *.o
+game-server
+astronaut-client
+outer-space-display

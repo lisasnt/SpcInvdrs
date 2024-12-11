@@ -228,12 +228,12 @@ void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player playe
     grid[(player->x)-1][(player->y)-1] = ' ';
     refresh_grid(grid);
     // remove player from the list
-    for (int i = 0; i < n_players; i++) {
+    for (int i = 0; i < *n_players; i++) {
         if (players[i].id == player->id) {
-            for (int j = i; j < n_players-1; j++) {
+            for (int j = i; j < *n_players-1; j++) {
                 players[j] = players[j+1];
             }
-            n_players --;
+            (*n_players) --;
             break;
         }
     }
