@@ -19,9 +19,11 @@ int main (void) {
     assert (rc == 0);
     rc = zmq_setsockopt (subscriber, ZMQ_SUBSCRIBE, "", 0); //  Subscribe to all messages
     assert (rc == 0);
+
     init_ncurses();
     mvwprintw(stdscr, 0, 0, "Outer Space Display");
     refresh();
+    
     while(1) {
         char *buffer = s_recv(subscriber); 
         while (strcmp(buffer, UPDATE_DISPLAY) != 0) {

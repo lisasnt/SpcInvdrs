@@ -30,7 +30,9 @@ int main () {
 
     init_grid(grid, aliens);
     get_score_board(players, n_players);
+    #ifdef DEBUG
     init_debug_window();
+    #endif
 
     while (1) {
         s_send(publisher, UPDATE_DISPLAY);
@@ -109,24 +111,7 @@ int main () {
     return 0;
 }
 
-// TODOs 
+// Left TODOs 
 // The aliens move randomly in outer space at a rate of one place per second
-// Students should decide what happens to a client that sends an Astronaut_connect message when 8 clients are already connected.
-// DONE At the beginning of the game, 1/3 of the outer space should have aliens.
-// Astronaut inserterd/removed from a list of astronauts
-// display ncurses field of game (with astronauts, aliens, and laser rays) and the scores of all the astronauts. (same as outer-space-display.c)
-// When an astronaut fires the laser, its ray should be drawn on the screen for 0.5 seconds. 
-// When astronaut sends a command he must receive back its own score.
+// Display the laser ray also in the outerspace-display
 // Error treatment / Cheating prevention
-// Zapping -> Aliens are destroyed, and a point is added to the astronaut.
-//         -> Other astronauts are stunned and become unmovable for 10 seconds.
-//         -> Astronauts can only fire the laser at a rate of one fire every 3 seconds.
-// asser results of zmq functions:
-                                    /*void *context = zmq_ctx_new ();
-                                    assert (rc != NULL);
-                                    void *responder = zmq_socket (context, ZMQ_REP);
-                                    assert (responder != NULL);
-                                    int rc = zmq_bind (responder, "tcp://*:5555");
-                                    assert (rc == 0); */
-
-// DONOT USE threds, select, non-blocking communication, active wait, signals

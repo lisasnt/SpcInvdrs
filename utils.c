@@ -1,6 +1,6 @@
 #include "utils.h"
 
-void shuffle_array(char* array, size_t n) {
+static void shuffle_array(char* array, size_t n) {
     srand(time(NULL)); 
     if (n > 1) {
         size_t i;
@@ -13,13 +13,16 @@ void shuffle_array(char* array, size_t n) {
     }
 }
 
-void init_aliens_array(char* aliens_array, int dim) {    
+static void init_aliens_array(char* aliens_array, int dim) {    
     for (int i = 0; i < dim; i++) {
         aliens_array[i] = (i < (dim)/3) ? ALIEN_SYMBOL : ' ';
     }
     shuffle_array(aliens_array, dim);
 }
 
+/*
+* Initialize ncurses mode
+*/
 void init_ncurses() {
     initscr();		    	/* Start curses mode 		*/
     cbreak();				/* Line buffering disabled	*/
@@ -57,7 +60,7 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array) {
     }
     wrefresh(outspc_win);
 
-    // save aliens positions in the grid
+    // save aliens positions in the grid and initialize the austronats areas to ' '
     for (int i = 0; i < OUTER_SPACE_SIZE; i++) {
         for (int j = 0; j < OUTER_SPACE_SIZE; j++) {
             grid[i+OFFSET][j+OFFSET] = aliens_array[j*OUTER_SPACE_SIZE+i];
@@ -72,6 +75,9 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array) {
     }
 }
 
+/*
+* Refresh the grid with the new positions of the players and different aliens
+*/
 void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]) {
     WINDOW* my_win = newwin(GRID_SIZE+3, GRID_SIZE+3, 0, 0);
     for (int i = 1; i < GRID_SIZE+1; i++) {
@@ -91,6 +97,9 @@ void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]) {
     wrefresh(game_border_win);
 }
 
+/*
+* Print the last score board on the screen
+*/
 void get_score_board(Player* players, int n_players) {
     WINDOW* score_board_win = newwin(MAX_PLAYERS+2, GRID_SIZE+2, 1, GRID_SIZE+6);
     box(score_board_win, 0 , 0);	
@@ -101,6 +110,9 @@ void get_score_board(Player* players, int n_players) {
     wrefresh(score_board_win);
 }
 
+/*
+*   Initialize the debug window
+*/
 void init_debug_window() {
     WINDOW* debug_win = newwin(10, GRID_SIZE+2, MAX_PLAYERS+3, GRID_SIZE+6);
     box(debug_win, 0 , 0);	
@@ -108,6 +120,9 @@ void init_debug_window() {
     wrefresh(debug_win);
 }
 
+/*
+*   Update the debug window with a new message
+*/
 void update_debug_window(char* msg) {
     WINDOW* debug_win = newwin(5, GRID_SIZE, MAX_PLAYERS+4, GRID_SIZE+7);
     mvwprintw(debug_win, 1, 1, msg);
@@ -115,7 +130,7 @@ void update_debug_window(char* msg) {
 }
 
 /*
-* Initialize the player controller: keyboard input and print its own score
+*   Initialize the player controller: keyboard input and print its own score
 */
 void init_player_controller() {
     init_ncurses();
@@ -181,6 +196,9 @@ void add_player(char grid[GRID_SIZE][GRID_SIZE], Player* new_player) {
     refresh_grid(grid);
 }
 
+/*
+*   Move the player in the grid
+*/
 void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direction){
     if (!is_stunned(player)) {
         char id = player->id;
@@ -226,6 +244,9 @@ void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direc
     }
 }
 
+/*
+*   Get the id of the player
+*/
 int get_id(char* buffer, const char* player_id_chars) {
     for (int i = 0; i < MAX_PLAYERS; i++) {
         if (player_id_chars[i] == buffer[0]) {
@@ -236,7 +257,7 @@ int get_id(char* buffer, const char* player_id_chars) {
 }
 
 /*
-   Remove a player from the grid and the list of players, decreasing the total number of players
+*   Remove a player from the grid and the list of players, decreasing the total number of players
 */
 void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int* n_players) {
     // remove player from the grid
@@ -254,7 +275,7 @@ void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player playe
     }
 }
 
-int is_stunned(Player* player) {
+static int is_stunned(Player* player) {
     if (player->stunned) {
         int64_t current_time = s_clock();
         if (current_time - player->stun_start >= 10000) {
@@ -264,7 +285,7 @@ int is_stunned(Player* player) {
     return player->stunned;
 }
 
-int is_cooldown(Player* player) {
+static int is_cooldown(Player* player) {
     if (player->cooldown) {
         int64_t current_time = s_clock();
         if (current_time - player->cooldown_start >= 3000) {
@@ -275,9 +296,9 @@ int is_cooldown(Player* player) {
 }
 
 /*
-    Draw the - line on the screen for 0.5 seconds,
-    and after delete aliens in line of sight
-    flag the other astronauts as stunned in the same line of sight
+*   Draw the - line on the screen for 0.5 seconds,
+*   and after delete aliens in line of sight
+*   flag the other astronauts as stunned in the same line of sight
 */
 void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int n_players) {
     if (!is_cooldown(player)) {   
@@ -309,7 +330,7 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
                 }
                 player->cooldown = 1; 
                 player->cooldown_start = s_clock();
-                refresh_grid(grid);
+                refresh_grid(grid); // TODO here I should send the grid to the display -> not worthy to implement it with this 'bad' architecture
                 s_sleep(500);
                 for(int i = 1; i <= GRID_SIZE; i++) {
                     if (grid[i-1][y-1] == LASER_SYMBOL) {
@@ -355,9 +376,6 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
     }   
 }
 
-/*
-    Send the grid to the display
-*/
 static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher) {
     char buffer[MSG_SIZE];
     for (int i = 0; i < GRID_SIZE; i++) {
@@ -383,11 +401,6 @@ static void send_score_board(Player* players, int n_players, void *publisher) {
     }
 }
 
-void send_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int n_players, void *publisher) {
-    send_grid(grid, publisher);
-    send_score_board(players, n_players, publisher);
-}
-
 static void receive_grid(char grid[GRID_SIZE][GRID_SIZE], void *subscriber) {
     char buffer[MSG_SIZE];
     for (int i = 0; i < GRID_SIZE; i++) {
@@ -411,6 +424,17 @@ static void receive_score_board(Player* players, int* n_players, void *subscribe
     get_score_board(players, *n_players);
 }
 
+/*
+*  Send the grid and the score board to the displays
+*/
+void send_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int n_players, void *publisher) {
+    send_grid(grid, publisher);
+    send_score_board(players, n_players, publisher);
+}
+
+/*
+*  Receive the grid and the score board from the game server
+*/
 void receive_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int* n_players, void *subscriber) {
     receive_grid(grid, subscriber);
     receive_score_board(players, n_players, subscriber);

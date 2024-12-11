@@ -46,6 +46,7 @@ int main (void) {
     command.msg_type = "Not valid";
     command.action = -1;
     int key = -1; 
+    
     while (strcmp(command.msg_type, DISCONNECT) != 0) {
         while (key == -1) {
             key = getch();

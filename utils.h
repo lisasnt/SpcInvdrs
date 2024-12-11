@@ -18,6 +18,8 @@ static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher);
 static void send_score_board(Player* players, int n_players, void *publisher);
 static void receive_grid(char grid[GRID_SIZE][GRID_SIZE], void *subscriber);
 static void receive_score_board(Player* players, int* n_players, void *subscriber);
+static int is_stunned(Player* player);
+static int is_cooldown(Player* player);
 
 void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array);
 void get_score_board(Player* players, int n_players);
@@ -31,7 +33,6 @@ void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player playe
 void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int n_players);
 void send_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int n_players, void *publisher);
 void receive_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int* n_players, void *subscriber);
-int is_stunned(Player* player);
 void get_stunned_time(Player* player);
 // debug
 void init_debug_window();
