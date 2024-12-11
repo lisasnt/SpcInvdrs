@@ -11,7 +11,6 @@
 
 #define random_from_i_to_n(i, n) (i + rand() % (n - i + 1));
 
-
 static void shuffle_array(char* array, size_t n);
 static void init_aliens_array(char* aliens_array, int dim);
 static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher);

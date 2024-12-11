@@ -65,7 +65,7 @@ int main () {
                 update_debug_window("Received Astronaut_movement\n");
             #endif
             strcpy(buffer, s_recv(responder));  // receives the direction of the movement
-            action_t tmp_direction = (int)(buffer[0]-'0'); // TODO test with atoi() 
+            action_t tmp_direction = atoi(buffer[0]);
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);
@@ -110,8 +110,3 @@ int main () {
     endwin();   /* End curses mode */
     return 0;
 }
-
-// Left TODOs 
-// The aliens move randomly in outer space at a rate of one place per second
-// Display the laser ray also in the outerspace-display
-// Error treatment / Cheating prevention
