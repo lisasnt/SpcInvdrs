@@ -9,12 +9,14 @@ int main (void) {
     Player player;
 
     init_player_controller();
-    sleep(1);
 
     // Socket 
     void *context = zmq_ctx_new ();
+    assert(context != NULL);
     void *requester = zmq_socket (context, ZMQ_REQ);
-    zmq_connect (requester, CLIENT_ADDRESS);
+    assert(requester != NULL);
+    int rc = zmq_connect (requester, CHILD_ADDRESS);
+    assert (rc == 0);
 
     // Connect to the server (message Astronaut_connect) and receive the astronaut id
     s_send(requester, CONNECT);
@@ -98,23 +100,16 @@ int main (void) {
             memset(buffer, 0, MSG_SIZE);
             strcpy(buffer, s_recv(requester));  // receives the astronaut score
             mvprintw(4, 0, "Your score: %s", buffer);
-            sleep(1);
         }
     }
 
     // Disconnect from the server (message Astronaut_disconnect)
     s_sendmore(requester, DISCONNECT);
-    // while(strcmp(buffer, ACK) != 0) {
-    //     strcpy(buffer, s_recv(requester));
-    // }
     mvprintw(4, 0, "You decide to disconnected :(");
     refresh();
     memset(buffer, 0, MSG_SIZE);
     sprintf(buffer, "%c", player.id);
     s_send(requester, &player.id);
-    // while(strcmp(buffer, ACK) != 0) {
-    //     strcpy(buffer, s_recv(requester));
-    // }
     zmq_close (requester);
     zmq_ctx_destroy (context); 
   	endwin();   /* End curses mode */

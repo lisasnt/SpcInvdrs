@@ -19,11 +19,11 @@
 #define DISCONNECT  "Astronaut_disconnect"
 #define UPDATE      "Outer_space_update"
 #define ACK         "Message_received"
-
-//TODO In order to simplify the execution of the various applications the addresses (IP address
-//and port) of all the sockets in the project should be defined in a .h file 
-#define SERVER_ADDRESS "tcp://*:5555"
-#define CLIENT_ADDRESS "tcp://localhost:5555"
+#define UPDATE_DISPLAY "UPDATE_DISPLAY"
+#define SERVER_ADDRESS_REP "tcp://*:5555"
+#define SERVER_ADDRESS_PUB "tcp://*:5556"
+#define CHILD_ADDRESS "tcp://localhost:5555"
+#define DISPLAY_ADDRESS "tcp://localhost:5556"
 
 typedef enum {UP, DOWN, LEFT, RIGHT, LASER} action_t;
 
@@ -33,8 +33,10 @@ typedef struct {
     char id;            // Unique identifier (e.g., 'A', 'B', ...)
     int x, y;           // Current position
     int score;          // Current score
-    int stunned;        // Stun counter (0 if not stunned)
-    int cooldown;       // Laser cooldown counter
+    bool stunned;        // Stun flag (0 if not stunned)
+    bool cooldown;       // Laser flag (0 if not in cooldown)
+    int64_t stun_start; // When the stun started
+    int64_t cooldown_start; // When the cooldown started
 } Player;
 
 typedef struct {

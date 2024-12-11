@@ -11,8 +11,13 @@
 
 #define random_from_i_to_n(i, n) (i + rand() % (n - i + 1));
 
+
 static void shuffle_array(char* array, size_t n);
 static void init_aliens_array(char* aliens_array, int dim);
+static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher);
+static void send_score_board(Player* players, int n_players, void *publisher);
+static void receive_grid(char grid[GRID_SIZE][GRID_SIZE], void *subscriber);
+static void receive_score_board(Player* players, int* n_players, void *subscriber);
 
 void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array);
 void get_score_board(Player* players, int n_players);
@@ -24,7 +29,10 @@ void move_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, action_t direc
 int get_id(char* buffer, const char* player_id_chars);
 void remove_player(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int* n_players);
 void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player players[MAX_PLAYERS], int n_players);
-
+void send_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int n_players, void *publisher);
+void receive_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int* n_players, void *subscriber);
+int is_stunned(Player* player);
+void get_stunned_time(Player* player);
 // debug
 void init_debug_window();
 void update_debug_window(char* msg);
