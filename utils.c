@@ -302,7 +302,7 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
                         for (int j = 0; j < n_players; j++) {
                             if (grid[i-1][y-1] == players[j].id) {
                                 players[j].stunned = 1; 
-                                player->stun_start = s_clock();
+                                players[j].stun_start = s_clock();
                             }
                         }
                     }
@@ -334,7 +334,7 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
                         for (int j = 0; j < n_players; j++) {
                             if (grid[x-1][i-1] == players[j].id) {
                                 players[j].stunned = 1; 
-                                player->stun_start = s_clock();
+                                players[j].stun_start = s_clock();
                             }
                         }
                     }

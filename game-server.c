@@ -56,7 +56,7 @@ int main () {
                 #ifdef DEBUG 
                 update_debug_window("Received Astronaut_connect: SERVER IS FULL!\n");
                 #endif
-                s_send(responder, "SERVER IS FULL!");
+                s_send(responder, "SERVER IS FULL! Try again later.");
             }
         } else if (strcmp(buffer, MOVE) == 0) {
             #ifdef DEBUG
@@ -109,18 +109,8 @@ int main () {
     return 0;
 }
 
-
-//TODO Declare an array of structures that will contain the information about the characters of the various clients. assign letter when the astronaut-client.c first connects.
-
-//TODO Add one new structure to the array whenever the server receives a message of type connection
-/*Whenever the server receives a message of type movement, the server should search for the
-corresponding entry on the array, calculate the new the position of such character and update
-the screen */
-//TODO Whenever the server receives a message of type disconnection, the server should remove the corresponding entry from the array.
-
 // TODOs 
 // The aliens move randomly in outer space at a rate of one place per second
-// If an astronaut-client.c sends no message, it will not get updates on the other astronaut’s scores.
 // Students should decide what happens to a client that sends an Astronaut_connect message when 8 clients are already connected.
 // DONE At the beginning of the game, 1/3 of the outer space should have aliens.
 // Astronaut inserterd/removed from a list of astronauts
