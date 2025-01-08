@@ -392,10 +392,14 @@ static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher) {
 
 static void send_score_board(Player* players, int n_players, void *publisher) {
     char buffer[MSG_SIZE];
+    sprintf(buffer, "%d", n_players); // send the number of players
+    s_send(publisher, buffer);
+    memset(buffer, 0, sizeof(buffer));
     for (int i = 0; i < n_players; i++) {
         sprintf(buffer, "%c:%d", players[i].id, players[i].score);
-        s_sendmore(publisher, buffer);
-        if (i == n_players-1) {
+        if (i != n_players-1) {
+            s_sendmore(publisher, buffer);
+        } else {
             s_send(publisher, buffer);
         }
     }
@@ -414,7 +418,11 @@ static void receive_grid(char grid[GRID_SIZE][GRID_SIZE], void *subscriber) {
 
 static void receive_score_board(Player* players, int* n_players, void *subscriber) {
     char buffer[MSG_SIZE];
+    strcpy(buffer, s_recv(subscriber)); // receive a strig with n_players
+    *n_players = atoi(buffer);
     for (int i = 0; i < *n_players; i++) {
+        memset(buffer, 0, sizeof(buffer));
+        strcpy(buffer, s_recv(subscriber)); // receive a string like ("%c:%d", id, score)
         // parse this string ("%c:%d", id, score)
         players[i].id = buffer[0];
         char* token = strtok(buffer, ":");
