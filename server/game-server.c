@@ -110,3 +110,9 @@ int main () {
     endwin();   /* End curses mode */
     return 0;
 }
+
+// Left TODOs 
+// The aliens move randomly in outer space at a rate of one place per second
+// Display the laser ray also in the outerspace-display
+// Error treatment / Cheating prevention
+// fork - child -> 4 processes: 2 client, 1 server, 1 child of the server 
