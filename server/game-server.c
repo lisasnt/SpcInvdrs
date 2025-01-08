@@ -4,7 +4,7 @@
     implements the game rules, and sends updates to the outer-space-display.c. 
     This application also shows the outer space.
 */
-#include "utils.h"
+#include "../utils.h"
 
 // Define DEBUG to enable debug messages
 //#define DEBUG 
@@ -65,7 +65,7 @@ int main () {
                 update_debug_window("Received Astronaut_movement\n");
             #endif
             strcpy(buffer, s_recv(responder));  // receives the direction of the movement
-            action_t tmp_direction = atoi(buffer[0]);
+            action_t tmp_direction = (int)(buffer[0]-'0');
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, s_recv(responder)); // receives the astronaut id
             int tmp_id = get_id(buffer, player_id_chars);

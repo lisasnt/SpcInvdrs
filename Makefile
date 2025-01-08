@@ -1,13 +1,13 @@
-all: game-server astronaut-client outer-space-display
+all: server/game-server client/astronaut-client client/outer-space-display
 
-game-server: utils.c game-server.c
-	gcc -g -lncurses -lzmq utils.c game-server.c -o $@
+server/game-server: utils.c server/game-server.c
+	gcc -g utils.c server/game-server.c -o $@ -lncurses -lzmq 
 
-astronaut-client: utils.c astronaut-client.c
-	gcc -g -lncurses -lzmq utils.c astronaut-client.c -o $@
+client/astronaut-client: utils.c client/astronaut-client.c
+	gcc -g utils.c client/astronaut-client.c -o $@ -lncurses -lzmq 
 
-outer-space-display: utils.c outer-space-display.c
-	gcc -g -lncurses -lzmq utils.c outer-space-display.c -o $@
+client/outer-space-display: utils.c client/outer-space-display.c
+	gcc -g utils.c client/outer-space-display.c -o $@ -lncurses -lzmq 
 
 clean:
-	rm -f game-server astronaut-client outer-space-display
+	rm -f server/game-server client/astronaut-client client/outer-space-display

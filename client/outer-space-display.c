@@ -3,7 +3,7 @@
     participants in the same way as the game-server.c. 
     Multiple outer-space-display.c can run simultaneously.
 */
-#include "utils.h"
+#include "../utils.h"
 
 int main (void) {
     Player players[MAX_PLAYERS]; 
