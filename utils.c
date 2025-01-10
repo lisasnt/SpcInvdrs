@@ -1,5 +1,7 @@
 #include "utils.h"
 
+pthread_mutex_t grid_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static void shuffle_array(char* array, size_t n) {
     srand(time(NULL)); 
     if (n > 1) {
@@ -95,6 +97,41 @@ void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]) {
         }
     }	
     wrefresh(game_border_win);
+}
+
+/*
+* Move aliens in the grid every time it is called
+*/
+void move_aliens(char grid[GRID_SIZE][GRID_SIZE]) {
+    
+    char temp_grid[GRID_SIZE][GRID_SIZE];
+    // Copy current grid
+    for(int i = 0; i < GRID_SIZE; i++)
+        for(int j = 0; j < GRID_SIZE; j++)
+            temp_grid[i][j] = grid[i][j];
+            
+    // Move aliens right or down
+    for(int i = OFFSET; i < OUTER_SPACE_SIZE + OFFSET; i++) {
+        for(int j = OFFSET; j < OUTER_SPACE_SIZE + OFFSET; j++) {
+            if(grid[i][j] == ALIEN_SYMBOL) {
+                temp_grid[i][j] = ' ';
+                // Move right if possible, otherwise move down // TODO serialize the array of the inner grid and then shuffle_array() to make it random
+                if(j + 1 < OUTER_SPACE_SIZE + OFFSET && grid[i][j+1] == ' ')
+                    temp_grid[i][j+1] = ALIEN_SYMBOL;
+                else if(i + 1 < OUTER_SPACE_SIZE + OFFSET && grid[i+1][j] == ' ')
+                    temp_grid[i+1][j] = ALIEN_SYMBOL;
+                else
+                    temp_grid[i][j] = ALIEN_SYMBOL;
+            }
+        }
+    }
+    
+    // Update grid
+    for(int i = 0; i < GRID_SIZE; i++)
+        for(int j = 0; j < GRID_SIZE; j++)
+            grid[i][j] = temp_grid[i][j];
+            
+    refresh_grid(grid);
 }
 
 /*
@@ -330,14 +367,14 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
                 }
                 player->cooldown = 1; 
                 player->cooldown_start = s_clock();
-                refresh_grid(grid); // TODO here I should send the grid to the display -> not worthy to implement it with this 'bad' architecture
+                refresh_grid(grid); // TODO here I should send the grid to the display to display the laser also to the client
                 s_sleep(500);
                 for(int i = 1; i <= GRID_SIZE; i++) {
                     if (grid[i-1][y-1] == LASER_SYMBOL) {
                         grid[i-1][y-1] = ' ';
                     }
                 }
-                refresh_grid(grid);
+                refresh_grid(grid); // TODO here I should send the grid to the display to remove the laser also to the client
                 break;
             case 'B':
             case 'C':   
@@ -361,14 +398,14 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
                     }
                 }
                 player->cooldown = 1; 
-                refresh_grid(grid);
+                refresh_grid(grid); // TODO here I should send the grid to the display to display the laser also to the client 
                 s_sleep(500);
                 for(int i = 1; i <= GRID_SIZE; i++) {
                     if (grid[x-1][i-1] == LASER_SYMBOL_VERTICAL) {
                         grid[x-1][i-1] = ' ';
                     }
                 }
-                refresh_grid(grid);
+                refresh_grid(grid);// TODO here I should send the grid to the display to remove the laser also to the client
                 break;
             default:
                 break;   

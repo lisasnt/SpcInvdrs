@@ -23,7 +23,7 @@ int main (void) {
     char buffer[MSG_SIZE];
     strcpy(buffer, s_recv(requester));
     if (strcmp(buffer, "SERVER IS FULL!") == 0) {
-        mvprintw(0, 0, "Server is full!");
+        mvprintw(0, 0, "Server is full, try later!");
         refresh();
         sleep(1);
         zmq_close (requester);
@@ -32,7 +32,7 @@ int main (void) {
         return 0;
     }
     mvprintw(0, 0, "Your ID: %c", buffer[0]);
-    mvprintw(1, 0, "Press Arrows to MOVE in your direction, Space to ZAP, q-Q to quit");
+    mvprintw(1, 0, "Press Arrows to MOVE in your direction, Space to ZAP, 'q' to quit your game, 'Q' to quit the server");
     mvprintw(4, 0, "Your score: %d", 0);
     refresh();
     player.id = buffer[0];
@@ -48,6 +48,8 @@ int main (void) {
     int key = -1; 
     
     while (strcmp(command.msg_type, DISCONNECT) != 0) {
+        mvprintw(3, 0, "");
+        refresh();
         while (key == -1) {
             key = getch();
         }
@@ -73,13 +75,13 @@ int main (void) {
                 command.action = LASER;
                 break;
             case 'q':
-            case 'Q':
+            //case 'Q':
                 command.msg_type = DISCONNECT;
                 command.action = -1;
                 break;
             default:
                 command.msg_type = "Not valid";
-                mvprintw(2, 0, "Not valid, try again");
+                mvprintw(3, 0, "Not valid, try again");
                 refresh(); 
                 command.action = -1;
                 break;
@@ -110,7 +112,7 @@ int main (void) {
     refresh();
     memset(buffer, 0, MSG_SIZE);
     sprintf(buffer, "%c", player.id);
-    s_send(requester, &player.id);
+    s_send(requester, buffer);
     zmq_close (requester);
     zmq_ctx_destroy (context); 
   	endwin();   /* End curses mode */

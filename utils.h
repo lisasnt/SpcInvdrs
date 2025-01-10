@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "zhelpers.h"
+#include <pthread.h>
 
 #define GRID_SIZE 20
 #define OFFSET  2
@@ -24,6 +25,7 @@
 #define ZAP         "Astronaut_zap"
 #define DISCONNECT  "Astronaut_disconnect"
 #define UPDATE      "Outer_space_update"
+#define TERMINATE   "Terminate_client"
 #define ACK         "Message_received"
 #define UPDATE_DISPLAY      "UPDATE_DISPLAY"
 #define SERVER_ADDRESS_REP  "tcp://*:5555"
@@ -33,7 +35,9 @@
 #define random_from_i_to_n(i, n) (i + rand() % (n - i + 1));
 
 typedef enum {UP, DOWN, LEFT, RIGHT, LASER} action_t;
+
 extern const char player_id_chars[MAX_PLAYERS];
+extern pthread_mutex_t grid_mutex;
 
 typedef struct {
     char id;                // Unique identifier (e.g., 'A', 'B', ...)
