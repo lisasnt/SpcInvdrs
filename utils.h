@@ -38,6 +38,7 @@ typedef enum {UP, DOWN, LEFT, RIGHT, LASER} action_t;
 
 extern const char player_id_chars[MAX_PLAYERS];
 extern pthread_mutex_t grid_mutex;
+extern pthread_mutex_t data_mutex;
 
 typedef struct {
     char id;                // Unique identifier (e.g., 'A', 'B', ...)
@@ -60,7 +61,7 @@ typedef struct {
 } Remote_cmd_t;
 
 static void shuffle_array(char* array, size_t n);
-static void init_aliens_array(char* aliens_array, int dim);
+static void init_aliens_array(char* aliens_array, int dim, int n_aliens);
 static void send_grid(char grid[GRID_SIZE][GRID_SIZE], void *publisher);
 static void send_score_board(Player* players, int n_players, void *publisher);
 static void receive_grid(char grid[GRID_SIZE][GRID_SIZE], void *subscriber);
@@ -81,6 +82,7 @@ void laser_opponents(char grid[GRID_SIZE][GRID_SIZE], Player* player, Player pla
 void send_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int n_players, void *publisher);
 void receive_display(char grid[GRID_SIZE][GRID_SIZE], Player* players, int* n_players, void *subscriber);
 void get_stunned_time(Player* player);
+void move_aliens(char grid[GRID_SIZE][GRID_SIZE]);
 // Debug functions:
 void init_debug_window();
 void update_debug_window(char* msg);

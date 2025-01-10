@@ -1,6 +1,7 @@
 #include "utils.h"
 
 pthread_mutex_t grid_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t data_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void shuffle_array(char* array, size_t n) {
     srand(time(NULL)); 
@@ -15,9 +16,9 @@ static void shuffle_array(char* array, size_t n) {
     }
 }
 
-static void init_aliens_array(char* aliens_array, int dim) {    
+static void init_aliens_array(char* aliens_array, int dim, int n_aliens) {    
     for (int i = 0; i < dim; i++) {
-        aliens_array[i] = (i < (dim)/3) ? ALIEN_SYMBOL : ' ';
+        aliens_array[i] = (i < n_aliens) ? ALIEN_SYMBOL : ' ';
     }
     shuffle_array(aliens_array, dim);
 }
@@ -50,7 +51,8 @@ void init_grid(char grid[GRID_SIZE][GRID_SIZE], char* aliens_array) {
     box(game_border_win, 0 , 0);	
     wrefresh(game_border_win);
 
-    init_aliens_array(aliens_array, OUTER_SPACE_SIZE*OUTER_SPACE_SIZE);
+    int dim = OUTER_SPACE_SIZE*OUTER_SPACE_SIZE;
+    init_aliens_array(aliens_array, dim, (dim/3));
 
     WINDOW* outspc_win = newwin(OUTER_SPACE_SIZE, OUTER_SPACE_SIZE, 4, 4); 
     
@@ -99,40 +101,62 @@ void refresh_grid(char grid[GRID_SIZE][GRID_SIZE]) {
     wrefresh(game_border_win);
 }
 
+static int get_n_aliens(char grid[GRID_SIZE][GRID_SIZE]) {
+    int cnt = 0;
+    for (int i = 0; i < GRID_SIZE; i++) {
+        for (int j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j] == ALIEN_SYMBOL) {
+                cnt ++;
+            }
+        }
+    }
+    return cnt;
+
+}
+
 /*
 * Move aliens in the grid every time it is called
 */
 void move_aliens(char grid[GRID_SIZE][GRID_SIZE]) {
     
-    char temp_grid[GRID_SIZE][GRID_SIZE];
-    // Copy current grid
+    char tmp_grid[GRID_SIZE][GRID_SIZE];
     for(int i = 0; i < GRID_SIZE; i++)
         for(int j = 0; j < GRID_SIZE; j++)
-            temp_grid[i][j] = grid[i][j];
-            
-    // Move aliens right or down
-    for(int i = OFFSET; i < OUTER_SPACE_SIZE + OFFSET; i++) {
-        for(int j = OFFSET; j < OUTER_SPACE_SIZE + OFFSET; j++) {
-            if(grid[i][j] == ALIEN_SYMBOL) {
-                temp_grid[i][j] = ' ';
-                // Move right if possible, otherwise move down // TODO serialize the array of the inner grid and then shuffle_array() to make it random
-                if(j + 1 < OUTER_SPACE_SIZE + OFFSET && grid[i][j+1] == ' ')
-                    temp_grid[i][j+1] = ALIEN_SYMBOL;
-                else if(i + 1 < OUTER_SPACE_SIZE + OFFSET && grid[i+1][j] == ' ')
-                    temp_grid[i+1][j] = ALIEN_SYMBOL;
-                else
-                    temp_grid[i][j] = ALIEN_SYMBOL;
-            }
+            tmp_grid[i][j] = grid[i][j];
+
+    // Move aliens randomly
+    char aliens_array[OUTER_SPACE_SIZE*OUTER_SPACE_SIZE];
+    int n_aliens= get_n_aliens(grid);
+    init_aliens_array(aliens_array, OUTER_SPACE_SIZE*OUTER_SPACE_SIZE, n_aliens);
+    for (int i = 0; i < OUTER_SPACE_SIZE; i++) {
+        for (int j = 0; j < OUTER_SPACE_SIZE; j++) {
+            tmp_grid[i+OFFSET][j+OFFSET] = aliens_array[j*OUTER_SPACE_SIZE+i];
         }
     }
-    
     // Update grid
-    for(int i = 0; i < GRID_SIZE; i++)
-        for(int j = 0; j < GRID_SIZE; j++)
-            grid[i][j] = temp_grid[i][j];
-            
+    for(int i = 0; i < GRID_SIZE; i++) {
+        for(int j = 0; j < GRID_SIZE; j++) {
+            grid[i][j] = tmp_grid[i][j];
+        }
+    }
     refresh_grid(grid);
 }
+
+// void increase_alien_population(char grid[GRID_SIZE][GRID_SIZE]) {
+//     int new_aliens = alien_count / 10; // Increase by 10%
+//     for (int i = 0; i < new_aliens; i++) {
+//         int placed = 0;
+//         while (!placed) {
+//             int x = rand() % OUTER_SPACE_SIZE + OFFSET;
+//             int y = rand() % OUTER_SPACE_SIZE + OFFSET;
+//             if (grid[x][y] == ' ') {
+//                 grid[x][y] = ALIEN_SYMBOL;
+//                 placed = 1;
+//                 alien_count++;
+//             }
+//         }
+//     }
+// }
 
 /*
 * Print the last score board on the screen

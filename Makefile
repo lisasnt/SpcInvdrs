@@ -1,7 +1,7 @@
 all: server/game-server client/astronaut-client client/outer-space-display client-b/astronaut-display-client
 
 server/game-server: utils.c server/game-server.c
-	gcc -g utils.c -pthread server/game-server.c -o $@ -lncurses -lzmq 
+	gcc -g -pthread utils.c server/game-server.c -o $@ -lncurses -lzmq 
 
 client/astronaut-client: utils.c client/astronaut-client.c
 	gcc -g utils.c client/astronaut-client.c -o $@ -lncurses -lzmq 

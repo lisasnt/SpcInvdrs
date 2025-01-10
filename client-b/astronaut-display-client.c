@@ -10,6 +10,7 @@ typedef struct {
     int *n_players;
     char player_id;
     volatile int terminate; 
+    pthread_mutex_t mutex; 
 } thread_args_t;
 
 void* get_player_action(void* arg) {
@@ -21,6 +22,7 @@ void* get_player_action(void* arg) {
     int *n_players = args->n_players;
     char player_id = args->player_id;
     volatile int *terminate = &args->terminate;
+    pthread_mutex_t *mutex = &args->mutex;
 
     char buffer[MSG_SIZE];
 
@@ -88,6 +90,7 @@ void* get_player_action(void* arg) {
                 s_recv(requester); // not used (astronaut score) 
             }
         }
+        pthread_mutex_lock(mutex);
         s_sendmore(requester, DISCONNECT);
         mvprintw(4, 0, "You decide to disconnected :(");
         refresh();
@@ -95,6 +98,7 @@ void* get_player_action(void* arg) {
         sprintf(buffer, "%c", player_id);
         s_send(requester, buffer);
         zmq_close (requester);
+        pthread_mutex_unlock(mutex);
     }
     return 0;
 }
@@ -106,6 +110,7 @@ void* display_game(void* arg) {
     Player *players = args->players;
     int *n_players = args->n_players;
     volatile int *terminate = &args->terminate;
+    pthread_mutex_t *mutex = &args->mutex;
 
     while (*terminate == 0) {
         char *buffer = s_recv(subscriber); 
@@ -113,7 +118,9 @@ void* display_game(void* arg) {
             buffer = s_recv(subscriber);
         }
         s_send(subscriber, ACK);
-        receive_display(grid, players, n_players, subscriber);             
+        pthread_mutex_lock(mutex);
+        receive_display(grid, players, n_players, subscriber);    
+        pthread_mutex_unlock(mutex);         
         free(buffer);
     }
     return 0;
@@ -139,8 +146,6 @@ int main() {
     assert (rc == 0);
 
     init_ncurses();
-    //mvwprintw(stdscr, 0, 0, "Outer Space Display"); // TODO display grid here
-    //refresh();
 
     // Connect to the server (message Astronaut_connect) and receive the astronaut id
     s_send(requester, CONNECT);
@@ -156,6 +161,7 @@ int main() {
     }
     char player_id = buffer[0];
 
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     thread_args_t args = {context, subscriber, requester, grid, players, &n_players, player_id};
 
     pthread_t thread1, thread2;
