@@ -12,6 +12,7 @@
 #include "zhelpers.h"
 #include <pthread.h>
 
+
 #define GRID_SIZE 20
 #define OFFSET  2
 #define OUTER_SPACE_SIZE (GRID_SIZE-2*OFFSET)

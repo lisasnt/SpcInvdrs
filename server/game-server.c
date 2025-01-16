@@ -6,6 +6,7 @@
 */
 #include "../utils.h"
 #include <pthread.h>
+#include "show_score_board.pb-c.h"
 
 // Define DEBUG to enable debug messages
 //#define DEBUG 
@@ -19,6 +20,33 @@ void *context;
 // int64_t last_kill_time = 0;
 // int alien_count = 0;
 
+/*message scoreBoard {
+    required string players = 1;
+    required int32 scores = 2;
+}*/
+
+void zmq_send_scoreBoard_msg(void *publisher, Player* players, int n_players) {
+    ScoreBoard msg = SCORE_BOARD__INIT;
+    msg.players = (char**)malloc(n_players*sizeof(char*));
+    msg.scores = (int32_t*)malloc(n_players*sizeof(int32_t));
+    for (int i = 0; i < n_players; i++) {
+        msg.players[i] = malloc(2);  // Enough space for the char + null terminator
+        msg.players[i][0] = players[i].id;  // Set the character
+        msg.players[i][1] = '\0';  // Null-terminate the string
+        msg.scores[i] = (int32_t)players[i].score;
+    }
+    int size_bin_msg = score_board__get_packed_size(&msg);
+    char* buffer_bin = (char*)malloc(size_bin_msg);
+    score_board__pack(&msg, buffer_bin);
+    s_send(publisher, buffer_bin);
+    
+    for (int i = 0; i < n_players; i++) {
+        free(msg.players[i]); 
+    }
+    free(msg.players);
+    free(msg.scores);
+    free(buffer_bin);
+}
 
 
 typedef struct {
@@ -53,6 +81,7 @@ void* read_commands_thread(void* arg) {
                 players[n_players++] = new_player;
                 pthread_mutex_unlock(&data_mutex);
                 get_score_board(players, n_players);
+                zmq_send_scoreBoard_msg(publisher, players, n_players);
                 send_display(grid, players, n_players, publisher);    
                 s_send(responder, &new_player.id);
             } else {
